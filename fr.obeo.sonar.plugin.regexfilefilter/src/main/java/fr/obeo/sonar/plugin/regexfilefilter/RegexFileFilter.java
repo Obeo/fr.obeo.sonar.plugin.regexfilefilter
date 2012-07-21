@@ -58,6 +58,7 @@ public class RegexFileFilter extends FileFilter {
             while (line != null && !accept) {
                 Matcher matcher = filter.matcher(line);
                 accept = matcher.find();
+                line = reader.readLine();
             }
         } catch (IOException e) {
             throw new SonarException("Could not check content of the file " + file.getPath(), e);
@@ -70,6 +71,6 @@ public class RegexFileFilter extends FileFilter {
                 }
             }
         }
-        return accept;
+        return !accept;
     }
 }

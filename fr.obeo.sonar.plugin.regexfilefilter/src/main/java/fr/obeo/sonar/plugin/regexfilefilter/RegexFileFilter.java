@@ -19,12 +19,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import javax.security.auth.login.Configuration;
-import javax.swing.filechooser.FileFilter;
+import org.apache.commons.configuration.Configuration;
+import org.sonar.api.batch.FileFilter;
+import org.sonar.api.utils.SonarException;
 
 /**
- * This extension of sonar's FileFilter API removes from the analysis any file which contains a given regular
- * expression.
+ * This extension of sonar's FileFilter API removes from the analysis any file which contains a given regular expression.
  * 
  * @author Laurent Goubet
  */

@@ -19,58 +19,61 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.configuration.Configuration;
-import org.sonar.api.batch.FileFilter;
-import org.sonar.api.utils.SonarException;
+import javax.security.auth.login.Configuration;
+import javax.swing.filechooser.FileFilter;
 
 /**
- * This extension of sonar's FileFilter API removes from the analysis any file which contains a given regular expression.
- *
+ * This extension of sonar's FileFilter API removes from the analysis any file which contains a given regular
+ * expression.
+ * 
  * @author Laurent Goubet
  */
 public class RegexFileFilter extends FileFilter {
-    private final Pattern filter;
-    
-    public RegexFileFilter(Configuration conf) {
-        filter = parseFilter(conf);
-    }
-    
-    private Pattern parseFilter(Configuration conf) {
-        final String regex = conf.getString(RegexFileFilterConstants.FILTER_PROPERTY);
-        try {
-            return Pattern.compile(regex);
-        } catch (PatternSyntaxException e) {
-            throw new SonarException("Parameter " + regex + " is not a valid regular expression.", e);
-        }
-    }
-    
-    public boolean accept(File file) {
-        if (filter.pattern().length() == 0) {
-            return true;
-        }
-        
-        boolean accept = false;
-        BufferedReader reader = null;
-        try {
-            // For now, use default encoding of the system
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            String line = reader.readLine();
-            while (line != null && !accept) {
-                Matcher matcher = filter.matcher(line);
-                accept = matcher.find();
-                line = reader.readLine();
-            }
-        } catch (IOException e) {
-            throw new SonarException("Could not check content of the file " + file.getPath(), e);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    // Swallow this one
-                }
-            }
-        }
-        return !accept;
-    }
+	private final Pattern filter;
+
+	public RegexFileFilter(Configuration conf) {
+		filter = parseFilter(conf);
+	}
+
+	private Pattern parseFilter(Configuration conf) {
+		final String regex = conf.getString(RegexFileFilterConstants.FILTER_PROPERTY);
+		try {
+			if (regex == null || regex.length() == 0) {
+				return Pattern.compile("");
+			}
+			return Pattern.compile(regex);
+		} catch (PatternSyntaxException e) {
+			throw new SonarException("Parameter " + regex + " is not a valid regular expression.", e);
+		}
+	}
+
+	public boolean accept(File file) {
+		if (filter.pattern().length() == 0) {
+			return true;
+		}
+
+		boolean accept = false;
+		BufferedReader reader = null;
+		try {
+			// For now, use default encoding of the system
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+			String line = reader.readLine();
+			while (line != null && !accept) {
+				Matcher matcher = filter.matcher(line);
+				accept = matcher.find();
+				line = reader.readLine();
+			}
+		} catch (IOException e) {
+			throw new SonarException("Could not check content of the file " + file.getPath(), e);
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// Swallow this one
+				}
+			}
+		}
+		return !accept;
+	}
 }
